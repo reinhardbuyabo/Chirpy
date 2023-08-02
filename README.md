@@ -39,5 +39,30 @@ Step 3: Create a new http.Server and use the corsMux as the handler
 
 Step 4: Use the server's ListenAndServe method to start the server
 
+## 2. Fileservers
+A fileserver is a kind of simple web server that serves static files from the host machine.
 
 
+### STEPS
+
+1. Add the HTML code above to a file called index.html in the same root directory as your server
+2. Use the 
+```go
+http.NewServeMux
+```
+.Handle() method to **add a handler** for the root path (/).
+
+3. Use a standard 
+```go
+http.FileServer
+```
+as **the handler**
+
+4. Use
+```go
+http.Dir
+```
+to **convert a filepath**, (in our case a dot: . which indicates the current directory) to a directory **for the http.FileServer**.
+Re-build and run your server
+Test your server by visiting http://localhost:8080 in your browser
+Run the tests in the window on the right
