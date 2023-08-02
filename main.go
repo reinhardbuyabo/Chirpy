@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/go-chi/chi"
 )
 
 type apiConfig struct {
@@ -11,18 +13,39 @@ type apiConfig struct {
 
 func main() {
 	apiCfg := apiConfig{}
+	r := chi.NewRouter()
 	// Step 1:
-	mux := http.NewServeMux()
-	mux.Handle("/app/", http.StripPrefix("/app", apiCfg.middlewareMetricInc(http.FileServer(http.Dir("."))))) // 3. Wrapping the FileServer with the MiddleWare we just wrote
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+	// mux := http.NewServeMux()
+	fileServerHandler := http.StripPrefix("/app", http.FileServer(http.Dir(".")))
+	r.Handle("/app", fileServerHandler) // You'll need to .Handle the fileserver handler twice, once for the /app/* path and once for the /app path (without the trailing slash).
+	r.Handle("/app/*", http.StripPrefix("/app", apiCfg.middlewareMetricInc(http.FileServer(http.Dir(".")))))
+	// mux.Handle("/app/", http.StripPrefix("/app", apiCfg.middlewareMetricInc(http.FileServer(http.Dir("."))))) // 3. Wrapping the FileServer with the MiddleWare we just wrote
+
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(http.StatusText(http.StatusOK)))
 	})
 
-	mux.HandleFunc("/metrics", apiCfg.metricsHandler)
+	// r.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+	// 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	// 	w.WriteHeader(http.StatusOK)
+	// 	w.Write([]byte(http.StatusText(http.StatusOK)))
+	// })
+
+	// mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+	// 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	// 	w.WriteHeader(http.StatusOK)
+	// 	w.Write([]byte(http.StatusText(http.StatusOK)))
+	// })
+
+	r.Get("/metrics", apiCfg.metricsHandler)
+
+	// r.HandleFunc("/metrics", apiCfg.metricsHandler)
+
+	// mux.HandleFunc("/metrics", apiCfg.metricsHandler)
 	// Step 2:
-	corsMux := middlewareCors(mux)
+	corsMux := middlewareCors(r)
 
 	// Step 3:
 	server := &http.Server{
