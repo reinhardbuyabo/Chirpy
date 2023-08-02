@@ -42,7 +42,6 @@ Step 4: Use the server's ListenAndServe method to start the server
 ## 2. Fileservers
 A fileserver is a kind of simple web server that serves static files from the host machine.
 
-
 ### STEPS
 
 1. Add the HTML code above to a file called index.html in the same root directory as your server
