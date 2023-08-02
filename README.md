@@ -6,13 +6,14 @@
 Step 1: Creating a new http.ServeMux.
 
 ```go
-mux := http.NewServeMux()
+mux := http.NewServeMux() // func NewServeMux() *ServeMux
 ```
 
 Function signature for the above function(Returns a pointer to a ServeMux struct):
 ```go
 func NewServeMux() *ServeMux
 ```
+NewServeMux allocates and returns a new ServeMux.
 
 ServeMux is an HTTP request multiplexer. It matches the URL of each incoming request against a list of registered patterns and calls the handler for the pattern that most closely matches the URL.
 
@@ -20,7 +21,7 @@ Step 2: Wrapping the request multiplixer in a custom middleware function that ad
 
 ```go
 func middlewareCors(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { // func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Request)) // func (mux *ServeMux) Handler(r *Request) (h Handler, pattern string)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
@@ -32,12 +33,25 @@ func middlewareCors(next http.Handler) http.Handler {
 	})
 }
 ```
+Handler returns the handler to use for the given request, consulting r.Method, r.Host, and r.URL.Path.
+HandleFunc registers the handler function for the given pattern.
 
 Middleware is a (loosely defined) term for any software or service that enables the parts of a system to communicate and manage data. It is the software that handles communication between components and input/output, so developers can focus on the specific purpose of their application
 
-Step 3: Create a new http.Server and use the corsMux as the handler
+Step 3: Create a new http.Server and use the corsMux as the handler.
+```go
+server := &http.Server{
+		Addr:    ":8080",
+		Handler: corsMux,
+	}
+```
+
+A Server defines parameters for running an HTTP server.
 
 Step 4: Use the server's ListenAndServe method to start the server
+```go
+server.ListenAndServe() // func (srv *Server) ListenAndServe() error
+```
 
 ## 2. Fileservers
 A fileserver is a kind of simple web server that serves static files from the host machine.
@@ -53,9 +67,10 @@ http.NewServeMux
 
 3. Use a standard 
 ```go
-http.FileServer
+http.FileServer // func FileServer(root FileSystem) Handler
 ```
 as **the handler**
+FileServer returns a handler that serves HTTP requests with the contents of the file system rooted at root
 
 4. Use
 ```go
