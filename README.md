@@ -80,3 +80,18 @@ to **convert a filepath**, (in our case a dot: . which indicates the current dir
 Re-build and run your server
 Test your server by visiting http://localhost:8080 in your browser
 Run the tests in the window on the right
+
+## 3. Custom Headers
+A http.Handler is **just an interface**:
+```go
+type Handler interface {
+	ServeHTTP(ResponseWriter, *Request)
+}
+```
+
+Any type with a ServeHTTP method that matches the http.HandlerFunc signature above is an http.Handler.
+To handle an incoming HTTP request, all a function needs is **a way to write a response and the request itself**.
+HandlerFunc signature:
+```go
+func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request)
+```

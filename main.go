@@ -7,7 +7,12 @@ import (
 func main() {
 	// Step 1:
 	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir(".")))
+	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("."))))
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf8") // headers
+		w.WriteHeader(http.StatusOK)                               // status code
+		w.Write([]byte("OK"))                                      // body
+	})
 	// Step 2:
 	corsMux := middlewareCors(mux)
 
