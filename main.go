@@ -1,16 +1,14 @@
 package main
 
 import (
-	"html/template"
+	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/go-chi/chi"
 )
 
 type apiConfig struct {
 	fileServerHits int
-	mutex          sync.Mutex
 }
 
 func main() {
@@ -88,32 +86,16 @@ func (cfg *apiConfig) middlewareMetricInc(next http.Handler) http.Handler { // 2
 }
 
 func (cfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {
-	cfg.mutex.Lock()
-	visits := cfg.fileServerHits
-	cfg.mutex.Unlock()
+	w.Header().Add("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf(`
+<html>
 
-	// Parse the HTML template from the file.
-	tmpl, err := template.ParseFiles("admin.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+<body>
+	<h1>Welcome, Chirpy Admin</h1>
+	<p>Chirpy has been visited %d times!</p>
+</body>
 
-	// Set the response Content-Type header to "text/html".
-	w.Header().Set("Content-Type", "text/html")
-
-	// Execute the template with the PageData and write the output to the response.
-	data := struct {
-		Title  string
-		Visits int
-	}{
-		Title:  "Welcome, Chirpy Admin",
-		Visits: visits,
-	}
-
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+</html>
+	`, cfg.fileServerHits)))
 }
