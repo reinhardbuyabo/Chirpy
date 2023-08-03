@@ -16,12 +16,12 @@ func main() {
 	r := chi.NewRouter()
 
 	// Step 1:
-	// mux := http.NewServeMux()
+
 	fileServerHandler := http.StripPrefix("/app", http.FileServer(http.Dir(".")))
 
 	r.Handle("/app", apiCfg.middlewareMetricInc(fileServerHandler)) // You'll need to .Handle the fileserver handler twice, once for the /app/* path and once for the /app path (without the trailing slash).
 	r.Handle("/app/*", apiCfg.middlewareMetricInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
-	// mux.Handle("/app/", http.StripPrefix("/app", apiCfg.middlewareMetricInc(http.FileServer(http.Dir("."))))) // 3. Wrapping the FileServer with the MiddleWare we just wrote
+
 	apiRouter := chi.NewRouter()
 	apiRouter.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
