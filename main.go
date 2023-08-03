@@ -29,25 +29,9 @@ func main() {
 		w.Write([]byte(http.StatusText(http.StatusOK)))
 	})
 
-	// r.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-	// 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(http.StatusText(http.StatusOK)))
-	// })
-
-	// mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-	// 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(http.StatusText(http.StatusOK)))
-	// })
 	adminRouter := chi.NewRouter()
 
 	adminRouter.Get("/metrics", apiCfg.metricsHandler)
-
-	// r.HandleFunc("/metrics", apiCfg.metricsHandler)
-
-	// mux.HandleFunc("/metrics", apiCfg.metricsHandler)
-	// Step 2:
 
 	corsMux := middlewareCors(r)
 	r.Mount("/api", apiRouter)
@@ -60,7 +44,7 @@ func main() {
 	}
 
 	// Step 4:
-	// fmt.Println("Server listening on port 8080:")
+
 	server.ListenAndServe()
 }
 
